@@ -5,9 +5,10 @@ The Core redshift survey class which handles most the linking assignments and gr
 from typing import Callable
 import numpy as np
 
+from nessie_py import create_group_catalog
 from cosmology import FlatCosmology
 from core_funcs import _find_groups
-from nessie_py import create_group_catalog, calculate_s_total
+from helper_funcs import calculate_s_total
 
 
 class RedshiftCatalog:
