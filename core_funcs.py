@@ -38,5 +38,7 @@ def _find_groups(
     Identify groups within the given ra, dec, and comoving distance arrays, given the los and pos
     linking lengths.
     """
-    links = fof_links_fast(ra, dec, comoving_distance, linking_length_pos, linking_length_los)
+    links = fof_links_fast(
+        ra, dec, comoving_distance, linking_length_pos, linking_length_los
+    )
     return _group_graph(links)
