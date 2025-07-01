@@ -7,8 +7,9 @@ from statsmodels.nonparametric.kde import KDEUnivariate
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 
-from cosmology import FlatCosmology
 from nessie_py import calculate_s_score
+from .cosmology import FlatCosmology
+
 
 
 def create_density_function(

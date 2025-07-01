@@ -7,7 +7,7 @@ from astropy.cosmology import FlatLambdaCDM
 import numpy as np
 import numpy.testing as npt
 
-from cosmology import FlatCosmology
+from nessie.cosmology import FlatCosmology
 
 
 class TestCoMovingDistance(unittest.TestCase):

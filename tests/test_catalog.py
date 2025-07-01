@@ -5,9 +5,9 @@ Unit tests for the RedshiftCatalog implementation
 import unittest
 import numpy as np
 
-from catalog import RedshiftCatalog
-from cosmology import FlatCosmology
-from helper_funcs import create_density_function
+from nessie.catalog import RedshiftCatalog
+from nessie.cosmology import FlatCosmology
+from nessie.helper_funcs import create_density_function
 
 
 class TestRedshiftCatalog(unittest.TestCase):

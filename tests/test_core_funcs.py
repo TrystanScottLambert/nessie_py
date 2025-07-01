@@ -5,7 +5,7 @@ Testing the core nessie functions in the core_funcs module.
 import unittest
 import numpy as np
 
-from core_funcs import _group_graph, _find_groups
+from nessie.core_funcs import _group_graph, _find_groups
 
 
 class TestGroupGraph(unittest.TestCase):

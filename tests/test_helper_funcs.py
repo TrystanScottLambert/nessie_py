@@ -6,8 +6,8 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 
-from helper_funcs import create_density_function, calculate_s_total
-from cosmology import FlatCosmology
+from nessie.helper_funcs import create_density_function, calculate_s_total
+from nessie.cosmology import FlatCosmology
 
 
 class TestDensityFunction(unittest.TestCase):
