@@ -3,7 +3,7 @@ Module for quality of life helper functions which are not core to the algorithm.
 """
 
 import numpy as np
-from scipy.stats import gaussian_kde
+from statsmodels.nonparametric.kde import KDEUnivariate
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 
@@ -44,25 +44,18 @@ def create_density_function(
     rho_z_func : callable
         A function rho(z) that gives the running density at a given redshift.
     """
-    # Compute comoving distances
     comoving_distances = cosmology.comoving_distance(redshifts)
 
-    # Max comoving distance + 2 binwidths (grace buffer)
-    max_comoving = np.max(comoving_distances) + 2 * binwidth
+    kde = KDEUnivariate(comoving_distances)
+    kde.fit(bw=binwidth, fft=True, gridsize=interpolation_n, cut=0)
+    kde_x = kde.support
+    kde_y = kde.density
 
-    # KDE with bandwidth matching a uniform (rectangular) kernel
-    bw = binwidth / np.sqrt(12)
-    kde = gaussian_kde(
-        comoving_distances, bw_method=bw / np.std(comoving_distances, ddof=1)
-    )
-
-    kde_x = np.linspace(0, max_comoving, interpolation_n)
-    kde_y = kde(kde_x)
     kde_func = interp1d(kde_x, kde_y, bounds_error=False, fill_value="extrapolate")
 
     # Running integral over each bin
     running_integral = np.array(
-        [quad(kde_func, x - binwidth / 2, x + binwidth / 2)[0] for x in kde_x]
+        [quad(kde_func, max(x - binwidth / 2, 0), x + binwidth / 2)[0] for x in kde_x]
     )
 
     # Running comoving volume per bin
@@ -71,7 +64,7 @@ def create_density_function(
     running_volume = survey_fractional_area * (upper_volumes - lower_volumes)
 
     # Convert comoving distance to redshift
-    z_vals = cosmology.z_at_comoving_dist(kde_x)
+    z_vals = cosmology.z_at_comoving_distances(kde_x)
     rho_vals = (total_counts * running_integral) / running_volume
 
     # Interpolate rho(z)
