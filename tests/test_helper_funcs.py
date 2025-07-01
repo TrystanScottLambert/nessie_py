@@ -5,7 +5,6 @@ Unit tests for the helper funcs module.
 import unittest
 import numpy as np
 import numpy.testing as npt
-import pandas as pd
 
 from helper_funcs import create_density_function, calculate_s_total
 from cosmology import FlatCosmology
@@ -16,7 +15,7 @@ class TestDensityFunction(unittest.TestCase):
     Testing the create_density_function in the helper_funcs module.
     """
 
-    cosmo = FlatCosmology(1., 0.3)
+    cosmo = FlatCosmology(1.0, 0.3)
 
     def test_against_nessie_r(self):
         """
@@ -30,9 +29,12 @@ class TestDensityFunction(unittest.TestCase):
         func = create_density_function(
             random_zs, len(random_zs) / 400, 0.001453924, self.cosmo
         )
-        answers = np.array([0.04775546, 0.024226080, 0.010309411, 0.003870724, 0.001073072])
+        answers = np.array(
+            [0.04775546, 0.024226080, 0.010309411, 0.003870724, 0.001073072]
+        )
         result = func(redshifts)
         npt.assert_almost_equal(result, answers, decimal=2)
+
 
 class TestCalculateSTotal(unittest.TestCase):
     """
@@ -50,7 +52,6 @@ class TestCalculateSTotal(unittest.TestCase):
         mock_ids = np.array([0, 0, 0, -1, -1])
         result = calculate_s_total(measured_ids, mock_ids)
         self.assertEqual(result, 0.4)
-
 
 
 if __name__ == "__main__":

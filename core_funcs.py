@@ -24,7 +24,13 @@ def _group_graph(links: dict):
         for galaxy_id in component:
             group_ids.append(group_id)
             galaxy_ids.append(galaxy_id)
-    return {"galaxy_id": galaxy_ids, "group_id": group_ids}
+
+    # Mathing the 1-index from R
+    group_table = {
+        "galaxy_id": np.array(galaxy_ids),
+        "group_id": np.array(group_ids) + 1,
+    }
+    return group_table
 
 
 def _find_groups(

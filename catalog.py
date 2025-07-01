@@ -46,14 +46,16 @@ class RedshiftCatalog:
         very little reason to have to run this yourself. In most cases it is more appropriate to run
         """
         co_dists = self.cosmology.comoving_distance(self.redshift_array)
-        linking_lengths = self.density_function(self.redshift_array) ** (-1.0 / 3) * (
-            self.completeness
+        linking_lengths = np.array(
+            self.density_function(self.redshift_array) ** (-1.0 / 3)
+            * (self.completeness)
         ) ** (-1.0 / 3)
         gal_rad = b0 * linking_lengths
         max_on_sky_radius = self.cosmology.virial_radius(
             max_stellar_mass, self.redshift_array
         )
-        too_wide = gal_rad > max_on_sky_radius
+        too_wide = np.where(gal_rad > max_on_sky_radius)[0]
+
         gal_rad[too_wide] = max_on_sky_radius[too_wide]
         linking_lengths_pos = gal_rad / (self.cosmology.h * co_dists)
 
@@ -90,13 +92,12 @@ class RedshiftCatalog:
         Singleton galaxies (unlinked) are given group ID -1.
         """
         group_links = self.get_raw_groups(b0, r0, max_stellar_mass)
-        all_ids = np.arange(self.ra_array)  # positions of all galaxies
-        singleton_galaxies = np.setdiff1d(all_ids, group_links["galaxy_id"])
-        singleton_marker_id = np.ones(len(singleton_galaxies)) * -1
-        all_galaxies = np.append(group_links["galaxy_id"], singleton_galaxies)
-        all_groups = np.append(group_links["group_id"], singleton_marker_id)
-        argsort = np.argsort(all_galaxies)
-        self.group_ids = all_groups[argsort]
+        group_ids = np.ones(len(self.ra_array)) * -1
+
+        group_ids[group_links["galaxy_id"] - 1] = group_links[
+            "group_id"
+        ]  # removing the 1-indexing
+        self.group_ids = np.astype(group_ids, int)
         self.current_r0 = r0
         self.current_b0 = b0
 

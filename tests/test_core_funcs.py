@@ -21,7 +21,7 @@ class TestGroupGraph(unittest.TestCase):
         groups = _group_graph(links)
 
         correct_galaxy_ids = [1, 2, 3, 4, 5]
-        correct_group_ids = [0, 0, 0, 1, 1]
+        correct_group_ids = [1, 1, 1, 2, 2]
 
         for res, ans in zip(groups["galaxy_id"], correct_galaxy_ids):
             self.assertEqual(res, ans)
@@ -46,7 +46,7 @@ class TestFindGroups(unittest.TestCase):
         pos_link_lengths = np.array([1, 1, 1, 1, 1, 1])
 
         correct_galaxy_ids = np.array([1, 2, 3, 4, 5])
-        correct_group_ids = np.array([0, 0, 0, 1, 1])
+        correct_group_ids = np.array([1, 1, 1, 2, 2])
 
         result = _find_groups(
             ra, dec, comoving_distance, pos_link_lengths, los_link_lengths

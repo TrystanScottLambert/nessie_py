@@ -1,15 +1,21 @@
+use fof::bijectivity::s_score;
+use fof::group_properties::GroupedGalaxyCatalog;
+use fof::link_finder::find_links;
+use fof::stats::harmonic_mean;
+use fof::Cosmology;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
 use rayon::prelude::*;
-use fof::Cosmology;
-use fof::link_finder::find_links;
-use fof::group_properties::GroupedGalaxyCatalog;
-use fof::bijectivity::s_score;
-use fof::stats::harmonic_mean;
 
 /// Calculate the hubble constant at different redshifts.
 #[pyfunction]
-fn h_at_z(redshift_array: Vec<f64>, omega_m: f64, omega_k: f64, omega_l: f64, h0: f64) -> PyResult<Vec<f64>> {
+fn h_at_z(
+    redshift_array: Vec<f64>,
+    omega_m: f64,
+    omega_k: f64,
+    omega_l: f64,
+    h0: f64,
+) -> PyResult<Vec<f64>> {
     let cosmo = Cosmology {
         omega_m,
         omega_k,
@@ -91,7 +97,6 @@ fn calculate_max_rvirs(
     Ok(result)
 }
 
-
 /// Calculate the Sigma from a given mass for a range of redshift values.
 #[pyfunction]
 fn calculate_max_sigmas(
@@ -130,7 +135,7 @@ fn distance_modulus(
         omega_l,
         h0,
     };
-    let result  = redshift_array
+    let result = redshift_array
         .par_iter()
         .map(|&z| cosmo.distance_modulus(z))
         .collect();
@@ -178,7 +183,7 @@ fn create_group_catalog<'py>(
     omega_k: f64,
     omega_l: f64,
     h0: f64,
-) ->PyResult<Bound<'py, PyDict>> {
+) -> PyResult<Bound<'py, PyDict>> {
     let catalog = GroupedGalaxyCatalog {
         ra,
         dec,
@@ -198,21 +203,24 @@ fn create_group_catalog<'py>(
     let dict = PyDict::new(py);
     dict.set_item("group_id", group_catalog.ids)?;
     dict.set_item("ra", group_catalog.ras)?;
-    dict.set_item("dec",  group_catalog.decs)?;
+    dict.set_item("dec", group_catalog.decs)?;
     dict.set_item("redshift", group_catalog.redshifts)?;
     dict.set_item("co_dist", group_catalog.distances)?;
     dict.set_item("r50", group_catalog.r50s)?;
-    dict.set_item("r100",  group_catalog.r100s)?;
+    dict.set_item("r100", group_catalog.r100s)?;
     dict.set_item("rsigma", group_catalog.rsigmas)?;
     dict.set_item("multiplicity", group_catalog.multiplicity)?;
 
     Ok(dict)
-
 }
 
 /// Calculates the Score in robotham+2011
 #[pyfunction]
-fn calculate_s_score(measured_groups: Vec<i32>, mock_groups: Vec<i32>, min_group_size: usize) -> PyResult<f64> {
+fn calculate_s_score(
+    measured_groups: Vec<i32>,
+    mock_groups: Vec<i32>,
+    min_group_size: usize,
+) -> PyResult<f64> {
     let score = s_score(&measured_groups, &mock_groups, min_group_size);
     Ok(score)
 }
