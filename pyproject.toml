@@ -13,6 +13,13 @@ classifiers = [
     "Programming Language :: Python :: Implementation :: PyPy",
 ]
 dynamic = ["version"]
+dependencies = [
+    "networkx>=3.5",
+    "statsmodels>=0.14.4",
+    "scipy>=1.16.0",
+    "numpy>=2.3.1"
+]
+
 [tool.maturin]
 features = ["pyo3/extension-module"]
 include = ["nessie/*.py"]
