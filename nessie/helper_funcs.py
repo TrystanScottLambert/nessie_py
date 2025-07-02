@@ -11,7 +11,6 @@ from nessie_py import calculate_s_score
 from .cosmology import FlatCosmology
 
 
-
 def create_density_function(
     redshifts: np.ndarray,
     total_counts: int,

@@ -48,8 +48,8 @@ class RedshiftCatalog:
         co_dists = self.cosmology.comoving_distance(self.redshift_array)
         linking_lengths = np.array(
             self.density_function(self.redshift_array) ** (-1.0 / 3)
-            * (self.completeness)
-        ) ** (-1.0 / 3)
+            * (self.completeness) ** (-1.0 / 3)
+        )
         gal_rad = b0 * linking_lengths
         max_on_sky_radius = self.cosmology.virial_radius(
             max_stellar_mass, self.redshift_array
