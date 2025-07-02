@@ -1,4 +1,4 @@
-![nessie](".github/nessie_logo.png")
+![nessie](./.github/nessie_logo.png)
 # Nessie
 
 A Fast and Flexible Friends-of-Friends Group Finder Based on the GAMA Group Finder in Robotham+2011
