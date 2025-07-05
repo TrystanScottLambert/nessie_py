@@ -210,6 +210,9 @@ fn create_group_catalog<'py>(
     dict.set_item("r100", group_catalog.r100s)?;
     dict.set_item("rsigma", group_catalog.rsigmas)?;
     dict.set_item("multiplicity", group_catalog.multiplicity)?;
+    dict.set_item("velocity_dispersion_gap", group_catalog.velocity_dispersion_gap)?;
+    dict.set_item("velocity_dispersion_gap_err", group_catalog.velocity_dispersion_gap_err)?;
+    dict.set_item("masses_raw", group_catalog.raw_masses)?;
 
     Ok(dict)
 }

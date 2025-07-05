@@ -9,6 +9,6 @@ name = "nessie_py"
 crate-type = ["cdylib"]
 
 [dependencies]
-fof = "0.1.2"
+fof = "0.1.4"
 pyo3 = "0.25.0"
 rayon = "1.10.0"

@@ -41,9 +41,9 @@ checksum = "48c757948c5ede0e46177b7add2e67155f70e33c07fea8284df6576da70b3719"
 
 [[package]]
 name = "fof"
-version = "0.1.2"
+version = "0.1.4"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "9300e6f8f360613dbfdf4d7b37aa01d0b4b599e4560a23dd02bfa8683434a349"
+checksum = "12548d20322a2a757f59e45285a04b415f680e102ed2ef104ba23fbd302c2d5f"
 dependencies = [
  "integrate",
  "libm",
