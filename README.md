@@ -149,3 +149,8 @@ The minimum number of members in a group can be set for the score too.
 
 This can then be optimized as the user sees fit.
 
+
+## Contributing
+
+We welcome contributions to Nessie! Please read our Contributing Guidelines before submitting issues or pull requests.
+
