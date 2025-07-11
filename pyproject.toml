@@ -6,11 +6,14 @@ build-backend = "maturin"
 name = "nessie_py"
 description = "A fast and flexible friends-of-friends galaxy-group finder based on Rust."
 authors = [{name = "Trystan Lambert", email = "trystanscottlambert@gmail.com"}]
-requires-python = ">=3.8"
+requires-python = ">=3.11"
 classifiers = [
     "Programming Language :: Rust",
     "Programming Language :: Python :: Implementation :: CPython",
     "Programming Language :: Python :: Implementation :: PyPy",
+    "Programming Language :: Python :: 3",
+    "Operating System :: MacOS",
+    "Operating System :: POSIX :: Linux"
 ]
 dynamic = ["version"]
 dependencies = [
