@@ -10,10 +10,12 @@
     steps:
       - uses: actions/download-artifact@v4
 
-      - name: Debug: List downloaded artifacts
-        run: ls -R
+      - name: Debug - List downloaded artifacts
+        run: |
+          echo "Listing downloaded artifacts:"
+          ls -R
 
-      - name: Debug: Check token presence
+      - name: Debug - Check token presence
         run: echo "Token is set: ${{ secrets.PYPI_API_TOKEN != '' }}"
 
       - name: Generate artifact attestation
