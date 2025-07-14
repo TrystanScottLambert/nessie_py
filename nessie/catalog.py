@@ -8,7 +8,7 @@ import numpy as np
 from nessie_py import create_group_catalog
 from .cosmology import FlatCosmology
 from .core_funcs import _find_groups
-from .helper_funcs import calculate_s_total
+from .helper_funcs import calculate_s_total, validate, ValidationType
 
 
 class RedshiftCatalog:
@@ -39,6 +39,13 @@ class RedshiftCatalog:
         self.current_b0 = None
         self.group_ids = None
         self.mock_group_ids = None
+
+        validate(self.ra_array, ValidationType.RA)
+        validate(self.dec_array, ValidationType.DEC)
+        validate(self.redshift_array, ValidationType.REDSHIFT)
+        validate(self.completeness, ValidationType.COMPLETENESS)
+
+
 
     def get_raw_groups(self, b0: float, r0: float, max_stellar_mass=1e15) -> dict:
         """
@@ -91,6 +98,8 @@ class RedshiftCatalog:
         Run the full Friends-of-Friends (FoF) algorithm and assign group IDs to all galaxies.
         Singleton galaxies (unlinked) are given group ID -1.
         """
+        validate(b0, ValidationType.B0)
+        validate(r0, ValidationType.R0)
         group_links = self.get_raw_groups(b0, r0, max_stellar_mass)
         group_ids = np.ones(len(self.ra_array)) * -1
 
@@ -108,6 +117,9 @@ class RedshiftCatalog:
         Generate a summary data.frame of group properties based on assigned group IDs.
         Must have run the group finder.
         """
+        validate(absolute_magnitudes, ValidationType.ABS_MAG)
+        validate(velocity_errors, ValidationType.VEL_ERR)
+
         if self.group_ids is None:
             raise InterruptedError(
                 "Algorithm hasn't been run! Make sure to run_fof first."

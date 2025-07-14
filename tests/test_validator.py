@@ -118,6 +118,27 @@ class TestValidateFunction(unittest.TestCase):
         with self.assertRaises(ValueError):
             validate(np.array([1.1, 0.1]), ValidationType.COMPLETENESS)
 
+    def test_vel_errors_valid(self):
+        """Check that the velocity errors above zero pass without error."""
+        try:
+            validate(np.array([50., 50.]), ValidationType.VEL_ERR)
+        except Exception as e:
+            self.fail(f"Velocity Errors failed unexpectedly: {e}")
+
+    def test_vel_errors_warning(self):
+        """Checking that there is a warning when the velocity errors seem too large."""
+        with warnings.catch_warnings(record=True) as w:
+            warnings.simplefilter("always")
+            validate(np.array([2001]), ValidationType.VEL_ERR)
+            self.assertTrue(
+                any("Warning: velocity errors seem very large. Are units correct?" in str(warn.message) for warn in w)
+            )
+
+    def test_vel_errors_below_zero_raises(self):
+        """Check that vel_err below 0 raises a ValueError."""
+        with self.assertRaises(ValueError):
+            validate(np.array([-50, 50]), ValidationType.VEL_ERR)
+
     # --- B0 ---
     def test_b0_valid(self):
         """Check that valid B0 value passes."""

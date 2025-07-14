@@ -105,6 +105,7 @@ class ValidationType(Enum):
     COMPLETENESS = "completeness"
     B0 = "b0"
     R0 = "r0"
+    VEL_ERR = "vel_err"
 
 
 def validate(value: np.ndarray[float] | float, valid_type: ValidationType) -> None:
@@ -119,6 +120,7 @@ def validate(value: np.ndarray[float] | float, valid_type: ValidationType) -> No
         ValidationType.ABS_MAG,
         ValidationType.REDSHIFT,
         ValidationType.COMPLETENESS,
+        ValidationType.VEL_ERR,
     }:
         value = np.asarray(value)
         if not np.issubdtype(value.dtype, np.number):
@@ -151,6 +153,12 @@ def validate(value: np.ndarray[float] | float, valid_type: ValidationType) -> No
         case ValidationType.COMPLETENESS:
             if np.any((value < 0) | (value > 1)):
                 raise ValueError("Completeness must be between 0 and 1.")
+
+        case ValidationType.VEL_ERR:
+            if np.any(value < 0):
+                raise ValueError("Velocity errors must be greater than 0.")
+            if np.any(value > 2000):
+                warnings.warn("Warning: velocity errors seem very large. Are units correct?")
 
         case ValidationType.B0 | ValidationType.R0:
             if not isinstance(value, (float, int)):
