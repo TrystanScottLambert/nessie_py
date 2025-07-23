@@ -5,7 +5,7 @@ The Core redshift survey class which handles most the linking assignments and gr
 from typing import Callable
 import numpy as np
 
-from nessie_py import create_group_catalog
+from nessie_py import create_group_catalog, create_pair_catalog
 from .cosmology import FlatCosmology
 from .core_funcs import _find_groups
 from .helper_funcs import calculate_s_total, validate, ValidationType
@@ -44,8 +44,6 @@ class RedshiftCatalog:
         validate(self.dec_array, ValidationType.DEC)
         validate(self.redshift_array, ValidationType.REDSHIFT)
         validate(self.completeness, ValidationType.COMPLETENESS)
-
-
 
     def get_raw_groups(self, b0: float, r0: float, max_stellar_mass=1e15) -> dict:
         """
@@ -114,7 +112,7 @@ class RedshiftCatalog:
         self, absolute_magnitudes: np.ndarray[float], velocity_errors: np.ndarray[float]
     ) -> dict:
         """
-        Generate a summary data.frame of group properties based on assigned group IDs.
+        Generate a dictionary of group properties based on assigned group IDs.
         Must have run the group finder.
         """
         validate(absolute_magnitudes, ValidationType.ABS_MAG)
@@ -137,6 +135,26 @@ class RedshiftCatalog:
             self.cosmology.hubble_constant,
         )
         return group_cat
+
+    def calculate_pair_table(self, absolute_magnitudes: np.ndarray[float]) -> dict:
+        """
+        Generates a dictionary of pair properties based on assigned group IDs.
+        Must have run the group finder.
+        """
+        validate(absolute_magnitudes, ValidationType.ABS_MAG)
+        if self.group_ids is None:
+            raise InterruptedError(
+                "Algorithm hasn't been run! Make sure to run_fof first."
+            )
+
+        pair_cat = create_pair_catalog(
+            self.ra_array,
+            self.dec_array,
+            self.redshift_array,
+            absolute_magnitudes,
+            self.group_ids,
+        )
+        return pair_cat
 
     def compare_to_mock(self, min_group_size=2):
         """

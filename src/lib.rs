@@ -202,18 +202,67 @@ fn create_group_catalog<'py>(
 
     let dict = PyDict::new(py);
     dict.set_item("group_id", group_catalog.ids)?;
-    dict.set_item("ra", group_catalog.ras)?;
-    dict.set_item("dec", group_catalog.decs)?;
-    dict.set_item("redshift", group_catalog.redshifts)?;
+    dict.set_item("iter_ra", group_catalog.iter_ras)?;
+    dict.set_item("iter_dec", group_catalog.iter_decs)?;
+    dict.set_item("iter_redshift", group_catalog.iter_redshifts)?;
+    dict.set_item("iter_idx", group_catalog.iter_idxs)?;
+    dict.set_item("median_redshift", group_catalog.median_redshifts)?;
     dict.set_item("co_dist", group_catalog.distances)?;
     dict.set_item("r50", group_catalog.r50s)?;
     dict.set_item("r100", group_catalog.r100s)?;
     dict.set_item("rsigma", group_catalog.rsigmas)?;
     dict.set_item("multiplicity", group_catalog.multiplicity)?;
-    dict.set_item("velocity_dispersion_gap", group_catalog.velocity_dispersion_gap)?;
-    dict.set_item("velocity_dispersion_gap_err", group_catalog.velocity_dispersion_gap_err)?;
-    dict.set_item("masses_raw", group_catalog.raw_masses)?;
+    dict.set_item(
+        "velocity_dispersion_gap",
+        group_catalog.velocity_dispersion_gap,
+    )?;
+    dict.set_item(
+        "velocity_dispersion_gap_err",
+        group_catalog.velocity_dispersion_gap_err,
+    )?;
+    dict.set_item("mass_proxy", group_catalog.raw_masses)?;
+    dict.set_item("bcg_idxs", group_catalog.bcg_idxs)?;
+    dict.set_item("bcg_ras", group_catalog.bcg_ras)?;
+    dict.set_item("bcg_decs", group_catalog.bcg_decs)?;
+    dict.set_item("bcg_redshifts", group_catalog.bcg_redshifts)?;
+    dict.set_item("center_of_light_ras", group_catalog.col_ras)?;
+    dict.set_item("center_of_light_decs", group_catalog.col_decs)?;
+    dict.set_item("total_absolute_mag", group_catalog.total_absolute_mags)?;
+    dict.set_item("flux_proxies", group_catalog.total_flux_proxies)?;
+    Ok(dict)
+}
 
+/// Creating the pair catalog standard properties.
+#[pyfunction]
+fn create_pair_catalog<'py>(
+    py: Python<'py>,
+    ra: Vec<f64>,
+    dec: Vec<f64>,
+    redshift: Vec<f64>,
+    absolute_magnitudes: Vec<f64>,
+    group_ids: Vec<i32>,
+) -> PyResult<Bound<'py, PyDict>> {
+    let catalog = GroupedGalaxyCatalog {
+        ra,
+        dec,
+        redshift,
+        absolute_magnitudes,
+        velocity_errors: vec![50.; 1], //dummy variable
+        group_ids,
+    };
+
+    let pair_catalog = catalog.calculate_pair_properties();
+
+    let dict = PyDict::new(py);
+    dict.set_item("pair_id", pair_catalog.ids)?;
+    dict.set_item("idx_1", pair_catalog.idx_1)?;
+    dict.set_item("idx_2", pair_catalog.idx_2)?;
+    dict.set_item("projected_separation", pair_catalog.projected_separation)?;
+    dict.set_item("velocity_separation", pair_catalog.velocity_separation)?;
+    dict.set_item("ra_bar", pair_catalog.ra_bar)?;
+    dict.set_item("dec_bar", pair_catalog.dec_bar)?;
+    dict.set_item("redshift_bar", pair_catalog.redshift_bar)?;
+    dict.set_item("total_absolute_mag", pair_catalog.total_absolute_mags)?;
     Ok(dict)
 }
 
@@ -248,6 +297,7 @@ fn nessie_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(create_group_catalog, m)?)?;
     m.add_function(wrap_pyfunction!(calculate_s_score, m)?)?;
     m.add_function(wrap_pyfunction!(calculate_harmonic_mean, m)?)?;
+    m.add_function(wrap_pyfunction!(create_pair_catalog, m)?)?;
 
     Ok(())
 }
