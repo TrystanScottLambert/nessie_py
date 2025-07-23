@@ -39,8 +39,8 @@ class TestRedshiftCatalog(unittest.TestCase):
         np.testing.assert_array_equal(group["galaxy_id"], np.array([1, 2]))
         np.testing.assert_array_equal(group["group_id"], np.array([1, 1]))
         np.testing.assert_array_equal(cat.group_ids, np.array([1, 1, -1]))
-        self.assertEqual(round(group_catalog["ra"][0]), 120.0)
-        self.assertEqual(round(group_catalog["dec"][0]), -34.0)
+        self.assertEqual(round(group_catalog["iter_ra"][0]), 120.0)
+        self.assertEqual(round(group_catalog["iter_dec"][0]), -34.0)
         self.assertEqual(group_catalog["multiplicity"][0], 2)
 
     def test_completeness_is_automatically_set(self):
