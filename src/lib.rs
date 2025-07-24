@@ -1,5 +1,6 @@
 use fof::bijectivity::s_score;
 use fof::group_properties::GroupedGalaxyCatalog;
+use fof::completeness::{calculate_completeness, PositionCatalog};
 use fof::link_finder::find_links;
 use fof::stats::harmonic_mean;
 use fof::Cosmology;
@@ -284,6 +285,37 @@ fn calculate_harmonic_mean(values: Vec<f64>) -> PyResult<f64> {
     Ok(mean)
 }
 
+/// Calculates the completeness of each evaluated point
+#[pyfunction]
+fn calc_completeness_rust(
+    ra_observed: Vec<f64>,
+    dec_observed: Vec<f64>,
+    ra_target: Vec<f64>,
+    dec_target: Vec<f64>,
+    ra_evaluate: Vec<f64>,
+    dec_evaluate: Vec<f64>,
+    angular_radius: Vec<f64>,
+) -> PyResult<Vec<f64>> {
+    let observed_catalog = PositionCatalog {
+        ra_deg: ra_observed,
+        dec_deg: dec_observed,
+    };
+    let target_catalog = PositionCatalog {
+        ra_deg: ra_target,
+        dec_deg: dec_target,
+    };
+    let evaluate_catalog = PositionCatalog {
+        ra_deg: ra_evaluate,
+        dec_deg: dec_evaluate,
+    };
+    Ok(calculate_completeness(
+        observed_catalog,
+        target_catalog,
+        evaluate_catalog,
+        angular_radius,
+    ))
+}
+
 /// A Python module implemented in Rust.
 #[pymodule]
 fn nessie_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
@@ -298,6 +330,7 @@ fn nessie_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(calculate_s_score, m)?)?;
     m.add_function(wrap_pyfunction!(calculate_harmonic_mean, m)?)?;
     m.add_function(wrap_pyfunction!(create_pair_catalog, m)?)?;
+    m.add_function(wrap_pyfunction!(calc_completeness_rust, m)?)?;
 
     Ok(())
 }
