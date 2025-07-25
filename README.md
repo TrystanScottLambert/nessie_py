@@ -91,7 +91,41 @@ red_cat = RedshiftCatalog$new(ra, dec, zobs, running_density, cosmo)
 
 ```
 
-Once built, the group finder can be run:
+
+#### Completeness
+
+It is possible to account for completeness by passing an array of values between 0 and 1 and using the setter method availble in the `RedshiftCatalog` object. A value of 1 indicates that a galaxy lies in a fully complete region, 0 indicates a completely incomplete region, and 0.5 would mean the region is 50% complete. The definition of this completeness array is left to the user
+```python
+completeness = np.repeat(0.98, len(ra))
+red_cat.set_completeness(completeness)
+
+```
+
+If no arguments are passed to the `set_completeness` method then 100% completeness is assumed.
+```python
+red_cat.set_completeness() # 100% completeness for every galaxy.
+```
+
+Using the setter method in this way allows for validation checks.
+
+**Actually calculating completeness:**
+Besides manually setting the completeness a `calculate_completeness` method exits to calculate 
+which can estimate completeness based on a "target catalog" (i.e., a catalog of RA and Dec representing the galaxies that were planned to be observed). Most surveys should have this available.
+```python
+taget_ra, target_dec = np.loadtxt("/some/target/catalog")
+on_sky_radii = np.repeat(0.01, len(ra)) # in degrees
+
+red_cat.calculate_completeness(target_ra, target_dec, on_sky_radii) 
+
+```
+In the example above, we set the radius for evaluating completeness to 0.01 degrees for every evaluation point. That is, for each galaxy in the redshift survey, completeness is computed within a 0.01-degree radius. It is also possible to use non-uniform radii on a per-galaxy basis.
+
+
+
+**The completeness must be set before the group finder can be run!**
+
+### Running
+Once built, and completeness set, the group finder can be run as:
 
 ```python
 red_cat.run_fof(b0 = 0.05, r0 = 18)
@@ -110,7 +144,8 @@ cosmo = FlatCosmology(h = 0.7, omega_matter = 0.3)
 running_density = create_density_function(redshifts, total_counts = len(redshifts), survey_fractional_area = 0.0001, cosmology = cosmo)
 
 # Running group catalogue
-red_cat = RedshiftCatalog$new(ra, dec, redshifts, running_density, cosmo)
+red_cat = RedshiftCatalog(ra, dec, redshifts, running_density, cosmo)
+red_cat.set_completeness()
 red_cat.run_fof(b0 = 0.05, r0 = 18)
 group_ids = red_cat.group_ids
 
@@ -125,6 +160,12 @@ The group catalog is stored as python dictionary that can be written to file in 
 ```python
 group_catalog_dict = red_cat.calculate_group_table(abs_mags)
 
+```
+
+### Pair Catalog
+Besides a Group catalog, a Pair catalog consiting of properties of galaxy-pairs can also be calculated.
+```python
+pair_catalog_dict = red_cat.calculate_pair_table()
 ```
 
 ## Tuning Against a Mock Catalogue
