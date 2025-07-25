@@ -28,9 +28,8 @@ class TestRedshiftCatalog(unittest.TestCase):
         cosmo = FlatCosmology(0.7, 0.3)
         completeness = np.repeat(0.98, len(ra_array))
         density_function = lambda z: np.repeat(0.2, len(z))
-        cat = RedshiftCatalog(
-            ra_array, dec_array, redshift_array, density_function, cosmo, completeness
-        )
+        cat = RedshiftCatalog(ra_array, dec_array, redshift_array, density_function, cosmo)
+        cat.set_completeness(completeness)
 
         group = cat.get_raw_groups(0.06, 18)
         cat.run_fof(0.06, 18)
@@ -55,7 +54,30 @@ class TestRedshiftCatalog(unittest.TestCase):
         cat = RedshiftCatalog(
             ra_array, dec_array, redshift_array, density_function, cosmo
         )
+        cat.set_completeness()
         np.testing.assert_array_equal(cat.completeness, np.ones(len(ra_array)))
+    
+    def test_completeness_can_be_calculated(self):
+        """
+        Checking that we can calculate the completeness from a target catalog.
+        """
+        ra_array = np.array([120.0, 120.0])
+        dec_array = np.array([-34.0, -34.0])
+        target_ra = np.array([120., 120., 300.])
+        target_dec = np.array([-34., -34., -34.])
+        redshift_array = np.array([0.2, 0.2])
+        cosmo = FlatCosmology(0.7, 0.3)
+        density_function = lambda z: np.repeat(0.2, len(z))
+        cat = RedshiftCatalog(
+            ra_array, dec_array, redshift_array, density_function, cosmo
+        )
+        cat.calculate_completeness(target_ra, target_dec, radii=np.array([0.1, 0.1]))
+        np.testing.assert_equal(cat.completeness, np.ones(2))
+
+        cat.ra_array = np.array([120.0])
+        cat.dec_array = np.array([-34.0])
+        cat.calculate_completeness(target_ra, target_dec, radii=np.array([0.1]))
+        np.testing.assert_equal(cat.completeness, np.array([0.5]))
 
     def test_getting_group_ids_works_on_simple_case(self):
         """
@@ -77,6 +99,7 @@ class TestRedshiftCatalog(unittest.TestCase):
         )
 
         cat = RedshiftCatalog(ras, decs, redshifts, rho_mean, cosmo)
+        cat.set_completeness()
         cat.run_fof(b0, r0)
 
         expected = np.array([1, 1, 1, 2, 2, 2, 3, 3, -1, -1])
@@ -95,6 +118,7 @@ class TestRedshiftCatalog(unittest.TestCase):
         rho_mean = lambda z: np.ones(len(z))
 
         cat = RedshiftCatalog(ras, decs, redshifts, rho_mean, cosmo)
+        cat.set_completeness()
         cat.group_ids = group_ids
         cat.mock_group_ids = mock_group_ids
 

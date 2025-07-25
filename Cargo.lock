@@ -161,9 +161,9 @@ dependencies = [
 
 [[package]]
 name = "fof"
-version = "0.1.7"
+version = "0.1.8"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "2a7c48156313ddeb398ad42293cc72467a8acee73b151b1eabc29009129a1c16"
+checksum = "58651ffb6aa3cc9c125c3b13c601f58071641278768954e2518dcdd37bd980a4"
 dependencies = [
  "csv",
  "integrate",
@@ -299,7 +299,7 @@ dependencies = [
 
 [[package]]
 name = "nessie_py"
-version = "0.1.10"
+version = "0.1.11"
 dependencies = [
  "fof",
  "pyo3",

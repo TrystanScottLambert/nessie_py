@@ -292,8 +292,6 @@ fn calc_completeness_rust(
     dec_observed: Vec<f64>,
     ra_target: Vec<f64>,
     dec_target: Vec<f64>,
-    ra_evaluate: Vec<f64>,
-    dec_evaluate: Vec<f64>,
     angular_radius: Vec<f64>,
 ) -> PyResult<Vec<f64>> {
     let observed_catalog = PositionCatalog {
@@ -304,14 +302,10 @@ fn calc_completeness_rust(
         ra_deg: ra_target,
         dec_deg: dec_target,
     };
-    let evaluate_catalog = PositionCatalog {
-        ra_deg: ra_evaluate,
-        dec_deg: dec_evaluate,
-    };
+
     Ok(calculate_completeness(
         observed_catalog,
         target_catalog,
-        evaluate_catalog,
         angular_radius,
     ))
 }

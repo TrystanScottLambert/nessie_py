@@ -10,7 +10,7 @@ from statsmodels.nonparametric.kde import KDEUnivariate
 from scipy.integrate import quad
 from scipy.interpolate import interp1d
 
-from nessie_py import calculate_s_score, calc_completeness_rust
+from nessie_py import calculate_s_score
 from .cosmology import FlatCosmology
 
 
@@ -178,79 +178,3 @@ def validate(value: np.ndarray[float] | float, valid_type: ValidationType) -> No
             raise ValueError(
                 f"Unknown property type: {valid_type.value}. Likely Enum needs updating."
             )
-
-
-def calculate_completeness(
-    ra_observed: np.ndarray[float],
-    dec_observed: np.ndarray[float],
-    ra_target: np.ndarray[float],
-    dec_target: np.ndarray[float],
-    ra_eval: np.ndarray[float],
-    dec_eval: np.ndarray[float],
-    search_radii: np.ndarray[float],
-):
-    """
-    Calculate the completeness of a galaxy survey at specified sky positions.
-
-    The completeness is defined as the ratio of observed to targeted galaxies within a given
-    angular radius at each evaluation point. This function is useful for estimating spatial
-    completeness and can be used, for example, to adjust linking lengths in structure-finding
-    algorithms like Nessie.
-
-    Parameters
-    ----------
-    ra_observed : array_like
-        Right Ascension (in degrees) of galaxies that were actually observed.
-
-    dec_observed : array_like
-        Declination (in degrees) of galaxies that were actually observed.
-
-    ra_target : array_like
-        Right Ascension (in degrees) of galaxies that were targeted for observation.
-
-    dec_target : array_like
-        Declination (in degrees) of galaxies that were targeted for observation.
-
-    ra_evaluate : array_like
-        Right Ascension (in degrees) of the positions at which completeness will be evaluated.
-
-    dec_evaluate : array_like
-        Declination (in degrees) of the positions at which completeness will be evaluated.
-
-    search_radii : array_like
-        Angular search radius (in degrees) for each evaluation point. Must match the length of `ra_evaluate`.
-
-    Returns
-    -------
-    completeness : ndarray
-        Array of completeness values (floats between 0 and 1), one for each evaluation position.
-    """
-    all_ra_arrays = [ra_observed, ra_target, ra_eval]
-    all_dec_arrays = [dec_observed, dec_target, dec_eval]
-
-    for ra_array in all_ra_arrays:
-        validate(ra_array, ValidationType.RA)
-
-    for dec_array in all_dec_arrays:
-        validate(dec_array, ValidationType.DEC)
-
-    validate(search_radii, ValidationType.ANGLE)
-
-    for ra_array, dec_array in zip(all_ra_arrays, all_dec_arrays):
-        if len(ra_array) != len(dec_array):
-            raise ValueError("ra arrays and dec arrays must be the same length.")
-
-    if len(search_radii) != len(ra_eval):
-        raise ValueError(
-            "search_radii must be the same length as the evaluation arrays."
-        )
-
-    return calc_completeness_rust(
-        ra_observed,
-        dec_observed,
-        ra_target,
-        dec_target,
-        ra_eval,
-        dec_eval,
-        search_radii,
-    )

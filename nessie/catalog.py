@@ -5,7 +5,7 @@ The Core redshift survey class which handles most the linking assignments and gr
 from typing import Callable
 import numpy as np
 
-from nessie_py import create_group_catalog, create_pair_catalog
+from nessie_py import create_group_catalog, create_pair_catalog, calc_completeness_rust
 from .cosmology import FlatCosmology
 from .core_funcs import _find_groups
 from .helper_funcs import calculate_s_total, validate, ValidationType
@@ -23,18 +23,14 @@ class RedshiftCatalog:
         redshift_array: np.ndarray[float],
         density_function: Callable,
         cosmology: FlatCosmology,
-        completeness: np.ndarray[float] = None,
     ) -> None:
         self.ra_array = ra_array
         self.dec_array = dec_array
         self.redshift_array = redshift_array
         self.density_function = density_function
         self.cosmology = cosmology
-        if completeness is None:
-            self.completeness = np.ones(len(self.ra_array))
-        else:
-            self.completeness = completeness
 
+        self.completeness = None
         self.current_r0 = None
         self.current_b0 = None
         self.group_ids = None
@@ -43,7 +39,73 @@ class RedshiftCatalog:
         validate(self.ra_array, ValidationType.RA)
         validate(self.dec_array, ValidationType.DEC)
         validate(self.redshift_array, ValidationType.REDSHIFT)
-        validate(self.completeness, ValidationType.COMPLETENESS)
+
+        if len(self.ra_array) != len(self.dec_array):
+            raise ValueError("ra_array and dec_array should be the same length.")
+        if len(self.redshift_array) != len(self.dec_array):
+            raise ValueError(
+                "redshift_array should be equal in length to the ra and dec arrays."
+            )
+
+    def calculate_completeness(
+        self,
+        ra_target: np.ndarray[float],
+        dec_target: np.ndarray[float],
+        radii: np.ndarray[float],
+    ) -> None:
+        """
+        Calculate the completeness around the galaxy positions.
+
+        Completeness is defined as the ratio of observed to targeted galaxies within a given
+        angular radius.
+
+        Parameters
+        ----------
+        ra_target : array_like
+            Right Ascension (in degrees) of galaxies that were targeted for observation.
+
+        dec_target : array_like
+            Declination (in degrees) of galaxies that were targeted for observation.
+
+        search_radii : array_like
+            Angular search radius (in degrees) for each evaluation point. Must match the length of `ra_evaluate`.
+
+        Returns
+        -------
+        completeness : ndarray
+            Array of completeness values (floats between 0 and 1), one for each evaluation position.
+        """
+        validate(ra_target, ValidationType.RA)
+        validate(dec_target, ValidationType.DEC)
+        validate(radii, ValidationType.ANGLE)
+
+        if len(ra_target) != len(dec_target):
+            raise ValueError("ra_target and dec_target need to be the same length.")
+        if len(ra_target) < len(self.ra_array):
+            raise ValueError("target arrays must be larger than observed arrays!")
+        if len(radii) != len(self.ra_array):
+            raise ValueError(
+                "radii should be the same length as the observed ra_array."
+            )
+
+        self.completeness = calc_completeness_rust(
+            self.ra_array, self.dec_array, ra_target, dec_target, radii
+        )
+
+    def set_completeness(self, completeness: np.ndarray[float] = None) -> None:
+        """
+        Sets the completeness of the redshift catalog to the given completeness array.
+        If no arguments are given 100% completeness is assumed.
+        """
+
+        if completeness is None:
+            completeness = np.ones(len(self.ra_array))
+        if len(completeness) != len(self.ra_array):
+            raise ValueError(
+                "The completenes array must be equal to the number of galaxies in the redshift survey."
+            )
+        validate(completeness, ValidationType.COMPLETENESS)
+        self.completeness = completeness
 
     def get_raw_groups(self, b0: float, r0: float, max_stellar_mass=1e15) -> dict:
         """
@@ -98,6 +160,11 @@ class RedshiftCatalog:
         """
         validate(b0, ValidationType.B0)
         validate(r0, ValidationType.R0)
+        if self.completeness is None:
+            raise ValueError(
+                "No completeness array found. Run either the set_completeness or calculate_completeness methods first."
+            )
+
         group_links = self.get_raw_groups(b0, r0, max_stellar_mass)
         group_ids = np.ones(len(self.ra_array)) * -1
 
@@ -169,6 +236,11 @@ class RedshiftCatalog:
         if self.mock_group_ids is None:
             raise InterruptedError(
                 "No mock group ids found. Be sure to set the mock groups ids."
+            )
+
+        if self.completeness is None:
+            raise ValueError(
+                "No completeness array found. Run either the set_completeness or calculate_completeness methods first."
             )
 
         return calculate_s_total(self.group_ids, self.mock_group_ids, min_group_size)
