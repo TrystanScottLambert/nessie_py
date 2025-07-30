@@ -88,9 +88,9 @@ class RedshiftCatalog:
                 "radii should be the same length as the observed ra_array."
             )
 
-        self.completeness = calc_completeness_rust(
+        self.completeness = np.array(calc_completeness_rust(
             self.ra_array, self.dec_array, ra_target, dec_target, radii
-        )
+        ))
 
     def set_completeness(self, completeness: np.ndarray[float] = None) -> None:
         """
@@ -105,7 +105,7 @@ class RedshiftCatalog:
                 "The completenes array must be equal to the number of galaxies in the redshift survey."
             )
         validate(completeness, ValidationType.COMPLETENESS)
-        self.completeness = completeness
+        self.completeness = np.array(completeness)
 
     def get_raw_groups(self, b0: float, r0: float, max_stellar_mass=1e15) -> dict:
         """
