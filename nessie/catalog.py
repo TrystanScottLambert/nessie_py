@@ -244,7 +244,3 @@ class RedshiftCatalog:
             )
 
         return calculate_s_total(self.group_ids, self.mock_group_ids, min_group_size)
-            plt.tight_layout()
-            plt.show()
-
-        return self.bopt, self.ropt
