@@ -4,9 +4,6 @@ The Core redshift survey class which handles most the linking assignments and gr
 
 from typing import Callable
 import numpy as np
-import matplotlib.pyplot as plt
-from scipy.optimize import fmin
-from tqdm.notebook import tqdm
 
 from nessie_py import create_group_catalog, create_pair_catalog, calc_completeness_rust
 from .cosmology import FlatCosmology
@@ -38,9 +35,6 @@ class RedshiftCatalog:
         self.current_b0 = None
         self.group_ids = None
         self.mock_group_ids = None
-        self.stotgrid = None
-        self.bopt = None
-        self.ropt = None
 
         validate(self.ra_array, ValidationType.RA)
         validate(self.dec_array, ValidationType.DEC)
@@ -250,59 +244,6 @@ class RedshiftCatalog:
             )
 
         return calculate_s_total(self.group_ids, self.mock_group_ids, min_group_size)
-
-    def optimize_params(self, b0_bins, r0_bins, show_grid=True, max_stellar_mass=1e15, min_group_size=2):
-        """
-        Optimizes the b0 and r0 parameters using a Nelder-Mead simplex optimization approach to maximize the s_tot output. Must have set the mock_group_ids.
-        ------
-        b0_bins : tuple
-            Tuple of (Bmin, Bmax, nB) : the minimum bin edge, maximum bin edge, and number of bins for b0.
-        r0_bins : tuple
-            Tuple of (Rmin, Rmax, nR) : the minimum bin edge, maximum bin edge, and number of bins for r0.
-        show_grid : bool
-            Whether to plot the 2D grid of s_tot values.
-        """
-        if self.mock_group_ids is None:
-            raise InterruptedError(
-                "No mock group ids found. Be sure to set the mock groups ids."
-            )
-
-        Bmin, Bmax, nB = b0_bins
-        Rmin, Rmax, nR = r0_bins
-        Bstep = (Bmax - Bmin) / nB
-        Rstep = (Rmax - Rmin) / nR
-        Ba = np.linspace(Bmin, Bmax, nB, endpoint=False) + 0.5 * Bstep
-        Ra = np.linspace(Rmin, Rmax, nR, endpoint=False) + 0.5 * Rstep
-
-        def calc_s_tot(b0, r0):
-            self.run_fof(b0=b0, r0=r0, max_stellar_mass=max_stellar_mass)
-            return self.compare_to_mock(min_group_size=min_group_size)
-        
-        def objective(params):
-            b0, r0 = params
-            return -calc_s_tot(b0, r0)
-
-        stotgrid = np.array([[calc_s_tot(b0, r0) for b0 in Ba] for r0 in tqdm(Ra)])
-        self.stotgrid = stotgrid
-    
-        j, i = np.unravel_index(np.argmax(stotgrid), stotgrid.shape)
-        B_maxl = Bmin + (i + 0.5) * Bstep
-        R_maxl = Rmin + (j + 0.5) * Rstep
-    
-        print('Simplex optimization ...')
-        res = fmin(objective, (B_maxl, R_maxl), xtol=0.1, ftol=0.1, maxiter=50, full_output=True)
-        self.bopt, self.ropt = res[0]
-
-        if show_grid is True:
-            extent = (Bmin, Bmax, Rmin, Rmax)
-            fig, ax = plt.subplots(figsize=(8, 6))
-            im = ax.imshow(stotgrid, cmap='jet', aspect='auto', origin='lower',
-                           extent=extent, interpolation='nearest')
-            cb = plt.colorbar(im, ax=ax)
-            cb.set_label('S_tot')
-            ax.plot(self.bopt, self.ropt, '+', color='white', markersize=10)
-            ax.set_xlabel('b0')
-            ax.set_ylabel('r0')
             plt.tight_layout()
             plt.show()
 
