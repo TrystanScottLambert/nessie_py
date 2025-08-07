@@ -67,9 +67,6 @@ class RedshiftCatalog:
         dec_target : array_like
             Declination (in degrees) of galaxies that were targeted for observation.
 
-        search_radii : array_like
-            Angular search radius (in degrees) for each evaluation point. Must match the length of `ra_evaluate`.
-
         Returns
         -------
         completeness : ndarray
@@ -88,9 +85,11 @@ class RedshiftCatalog:
                 "radii should be the same length as the observed ra_array."
             )
 
-        self.completeness = np.array(calc_completeness_rust(
-            self.ra_array, self.dec_array, ra_target, dec_target, radii
-        ))
+        self.completeness = np.array(
+            calc_completeness_rust(
+                self.ra_array, self.dec_array, ra_target, dec_target, radii
+            )
+        )
 
     def set_completeness(self, completeness: np.ndarray[float] = None) -> None:
         """
@@ -102,7 +101,7 @@ class RedshiftCatalog:
             completeness = np.ones(len(self.ra_array))
         if len(completeness) != len(self.ra_array):
             raise ValueError(
-                "The completenes array must be equal to the number of galaxies in the redshift survey."
+                "The completenes array must be equal to the number of galaxies in the survey."
             )
         validate(completeness, ValidationType.COMPLETENESS)
         self.completeness = np.array(completeness)
@@ -162,7 +161,7 @@ class RedshiftCatalog:
         validate(r0, ValidationType.R0)
         if self.completeness is None:
             raise ValueError(
-                "No completeness array found. Run either the set_completeness or calculate_completeness methods first."
+                "No completeness array found. Run 'set_completeness' or 'calculate_completeness'."
             )
 
         group_links = self.get_raw_groups(b0, r0, max_stellar_mass)
@@ -240,7 +239,7 @@ class RedshiftCatalog:
 
         if self.completeness is None:
             raise ValueError(
-                "No completeness array found. Run either the set_completeness or calculate_completeness methods first."
+                "No completeness array found. Run 'set_completeness' or 'calculate_completeness'."
             )
 
         return calculate_s_total(self.group_ids, self.mock_group_ids, min_group_size)
