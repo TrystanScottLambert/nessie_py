@@ -3,7 +3,7 @@
 
 A Fast and Flexible Friends-of-Friends Group Finder Based on the GAMA Group Finder in Robotham+2011
 
-The nessie python package is a tool for constructing galaxy-group catalogues from redshift survey data using the Friends-of-Friends algorithm based on Robotham+2011 and described in Lambert+(in prep). It is meant to exactly replicate the R package Nessie. Both draw from the same rust code.
+The Nessie python package is a tool for constructing galaxy-group catalogs from redshift survey data using the Friends-of-Friends algorithm based on Robotham+2011 and described in Lambert+(in prep). It is meant to exactly replicate the R package Nessie. Both draw from the same rust code.
 
 This package aims to be as user-friendly as possible and requires minimal information. The core functionality can be run on any dataset with R.A., Dec., and redshift information if the appropriate linking lengths are known.
 
@@ -26,9 +26,9 @@ curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
 
 in the terminal.
 
-### Installing nessie
+### Installing Nessie
 
-nessie can be easily installed using pip. 
+Nessie can be easily installed using pip. 
 
 ```sh
 pip install nessie_py
@@ -62,7 +62,7 @@ from nessie import FlatCosmology
 cosmo = FlatCosmology(h = 0.7, omega_matter = 0.3)
 
 ```
-**Note**: *Some users might think we should use an astropy.Cosmology object. This would be more generalized however it adds a dependence and there are other cosmology functions that the group finder users which aren't available in astropy. This custom object is also an exact clone of the R package so things remain consistent between both.*
+**Note**: *Some users might think we should use an astropy.Cosmology object. This would be more generalized however it adds a dependence and there are other cosmology functions that the group finder users which aren't available in astropy. This custom object is also an exact clone of the R package, so things remain consistent between both.*
 #### Building a Density Function
 
 The running density function can be created using the n(z) of the data. We include a helper function `create_density_function` which will take a distribution of redshifts and build the appropriate function.
@@ -74,7 +74,7 @@ running_density = create_density_function(redshifts, total_counts = len(redshift
 
 ```
 
-In the most basic of cases, the redshifts of the actual survey can be used. However, we recommend building an appropriate n(z) that accounts for large-scale structure fluctuations. This can be done by either using a randoms catalogue (Cole+2011) or even fitting a skewed normal function and sampling appropriately.
+In the most basic of cases, the redshifts of the actual survey can be used. However, we recommend building an appropriate n(z) that accounts for large-scale structure fluctuations. This can be done by either using a randoms catalog (Cole+2011) or even fitting a skewed normal function and sampling appropriately.
 
 Note that the fractional area is required and not the total area in steradians. i.e., area_in_steradians/4π.
 
@@ -87,14 +87,14 @@ import numpy as np
 from nessie import RedshiftCatalog
 
 ra, dec, zobs = np.loadtxt("some_file.txt", unpack=True)
-red_cat = RedshiftCatalog$new(ra, dec, zobs, running_density, cosmo)
+red_cat = RedshiftCatalog(ra, dec, zobs, running_density, cosmo)
 
 ```
 
 
 #### Completeness
 
-It is possible to account for completeness by passing an array of values between 0 and 1 and using the setter method availble in the `RedshiftCatalog` object. A value of 1 indicates that a galaxy lies in a fully complete region, 0 indicates a completely incomplete region, and 0.5 would mean the region is 50% complete. The definition of this completeness array is left to the user
+It is possible to account for completeness by passing an array of values between 0 and 1 and using the setter method available in the `RedshiftCatalog` object. A value of 1 indicates that a galaxy lies in a fully complete region, 0 indicates a completely incomplete region, and 0.5 would mean the region is 50% complete. The definition of this completeness array is left to the user
 ```python
 completeness = np.repeat(0.98, len(ra))
 red_cat.set_completeness(completeness)
@@ -112,7 +112,7 @@ Using the setter method in this way allows for validation checks.
 Besides manually setting the completeness a `calculate_completeness` method exits to calculate 
 which can estimate completeness based on a "target catalog" (i.e., a catalog of RA and Dec representing the galaxies that were planned to be observed). Most surveys should have this available.
 ```python
-taget_ra, target_dec = np.loadtxt("/some/target/catalog")
+target_ra, target_dec = np.loadtxt("/some/target/catalog")
 on_sky_radii = np.repeat(0.01, len(ra)) # in degrees
 
 red_cat.calculate_completeness(target_ra, target_dec, on_sky_radii) 
@@ -143,7 +143,7 @@ ra, dec, redshifts = np.loadtxt('some_redshift_survey.csv')
 cosmo = FlatCosmology(h = 0.7, omega_matter = 0.3)
 running_density = create_density_function(redshifts, total_counts = len(redshifts), survey_fractional_area = 0.0001, cosmology = cosmo)
 
-# Running group catalogue
+# Running group catalog
 red_cat = RedshiftCatalog(ra, dec, redshifts, running_density, cosmo)
 red_cat.set_completeness()
 red_cat.run_fof(b0 = 0.05, r0 = 18)
@@ -163,17 +163,17 @@ group_catalog_dict = red_cat.calculate_group_table(abs_mags)
 ```
 
 ### Pair Catalog
-Besides a Group catalog, a Pair catalog consiting of properties of galaxy-pairs can also be calculated.
+Besides a Group catalog, a Pair catalog consisting of properties of galaxy-pairs can also be calculated.
 ```python
 pair_catalog_dict = red_cat.calculate_pair_table()
 ```
 
-## Tuning Against a Mock Catalogue
-The above example is easy to do if you already know what the linking lengths are, but often the choice of `b0` and `r0` is not clear. A standard practice to overcome this issue is to rely on mock catalogues of known groupings to "tune" the best values. I.e., find the values of `b0` and `r0` that best recover what is known in the mock catalogues.
+## Tuning Against a Mock Catalog
+The above example is easy to do if you already know what the linking lengths are, but often the choice of `b0` and `r0` is not clear. A standard practice to overcome this issue is to rely on mock catalogs of known groupings to "tune" the best values. I.e., find the values of `b0` and `r0` that best recover what is known in the mock catalogs.
 
-Obtaining such mock catalogues is beyond the scope of this package. We assume that the user has obtained some in one manner or another or built their own.
+Obtaining such mock catalogs is beyond the scope of this package. We assume that the user has obtained some in one manner or another or built their own.
 
-Currently tuning can only be done in the Nessie R package. But we plan on including it here soon. But we do include functionality for comparing to mock catalogues which can be optimized by the user in anyway they wish.
+Currently, tuning can only be done in the Nessie R package. But we plan on including it here soon. But we do include functionality for comparing to mock catalogs which can be optimized by the user in any way they wish.
 
 ### Comparing to Mocks
 If known "true" groups are known then they can be set in the RedshiftCatalog object. Then the cost function described in section 3.1 of Robotham+2011 can be calculated trivially. 
