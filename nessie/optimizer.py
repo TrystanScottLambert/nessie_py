@@ -3,6 +3,7 @@ Module to handle all the optimization code.
 """
 
 from scipy.optimize import fmin
+import numpy as np
 from .catalog import RedshiftCatalog
 
 def optimize_nm(
