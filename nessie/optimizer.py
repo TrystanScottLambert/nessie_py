@@ -5,11 +5,12 @@ Module to handle all the optimization code.
 from scipy.optimize import fmin
 from .catalog import RedshiftCatalog
 
+
 def optimize_nm(
     redshift_cat: RedshiftCatalog,
     min_group_size: int,
     b0_guess: float = 0.05,
-    r0_guess: float = 30.,
+    r0_guess: float = 30.0,
     max_stellar_mass: float = 1e15,
 ) -> tuple[float, float]:
     """

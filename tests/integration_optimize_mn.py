@@ -12,7 +12,7 @@ from nessie.optimizer import optimize_nm
 from nessie.helper_funcs import create_density_function
 
 
-INFILE_SDSS = '/Users/00115372/Desktop/nessie_plots/asu.tsv'
+INFILE_SDSS = "/Users/00115372/Desktop/nessie_plots/asu.tsv"
 SDSS_AREA = 0.212673
 group_id, n_gal, z, ra, dec, mag = np.loadtxt(INFILE_SDSS, unpack=True, skiprows=1)
 group_id[group_id == 0] = -1

@@ -2,7 +2,6 @@
 Simple example script. Testing benchmarks, scores, and other integrations.
 """
 
-
 import numpy as np
 import pandas as pd
 

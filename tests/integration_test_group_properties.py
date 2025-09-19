@@ -17,7 +17,10 @@ SHARK_FILE = (
 )
 
 shark_data_frame = pd.read_parquet(SHARK_FILE)
-shark_data_frame = shark_data_frame[(shark_data_frame["zobs"] < 0.2) & (shark_data_frame["total_ab_dust_Z_VISTA"] != -999)]
+shark_data_frame = shark_data_frame[
+    (shark_data_frame["zobs"] < 0.2)
+    & (shark_data_frame["total_ab_dust_Z_VISTA"] != -999)
+]
 
 redshift = np.array(shark_data_frame["zobs"])
 ra = np.array(shark_data_frame["ra"])
