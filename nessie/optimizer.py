@@ -3,6 +3,7 @@ Module to handle all the optimization code.
 """
 
 from scipy.optimize import fmin
+from typing import Union, Sequence
 from nessie_py import calculate_harmonic_mean
 from .catalog import RedshiftCatalog
 
