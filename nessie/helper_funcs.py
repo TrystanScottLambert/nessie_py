@@ -12,8 +12,36 @@ from scipy.interpolate import interp1d
 from statsmodels.nonparametric.kde import KDEUnivariate
 
 
-from nessie_py import calculate_s_score
+from nessie_py import calculate_s_score, gen_randoms
 from .cosmology import FlatCosmology
+
+
+def gen_random_redshifts(
+    redshifts: np.ndarray[float],
+    mags: np.ndarray[float],
+    z_lim: float,
+    maglim: float,
+    cosmo: FlatCosmology,
+    n_clone: int = 400,
+    iterations: int = 10,
+) -> np.ndarray[float]:
+    """
+    Automatically models the n(z) using a randoms catalogue. This can be used to gen the density
+    function.
+    """
+
+    return gen_randoms(
+        redshifts,
+        mags,
+        z_lim,
+        maglim,
+        n_clone,
+        iterations,
+        cosmo.omega_m,
+        cosmo.omega_k,
+        cosmo.omega_lambda,
+        cosmo.hubble_constant,
+    )
 
 
 def create_density_function(
