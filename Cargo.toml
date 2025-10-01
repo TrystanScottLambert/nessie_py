@@ -11,4 +11,5 @@ crate-type = ["cdylib"]
 [dependencies]
 fof = "0.1.10"
 pyo3 = "0.25.0"
+randoms = "0.1.0"
 rayon = "1.11.0"
