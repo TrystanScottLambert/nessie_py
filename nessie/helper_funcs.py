@@ -40,7 +40,7 @@ def gen_random_redshifts(
         cosmo.omega_m,
         cosmo.omega_k,
         cosmo.omega_lambda,
-        cosmo.h,
+        cosmo.h * 100,
     )
 
 
