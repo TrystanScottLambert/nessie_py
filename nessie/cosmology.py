@@ -10,6 +10,7 @@ from nessie_py import (
     calculate_max_rvirs,
     calculate_max_sigmas,
     h_at_z,
+    diff_covol,
 )
 
 
@@ -108,6 +109,20 @@ class FlatCosmology:
         """
         return np.array(
             h_at_z(
+                redshifts,
+                self.omega_m,
+                self.omega_k,
+                self.omega_lambda,
+                self.hubble_constant,
+            )
+        )
+
+    def differential_covol(self, redshifts: np.ndarray[float]) -> np.ndarray[float]:
+        """
+        Computes the differential comoving volume for the given set of redshifts.
+        """
+        return np.array(
+            diff_covol(
                 redshifts,
                 self.omega_m,
                 self.omega_k,
