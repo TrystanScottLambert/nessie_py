@@ -170,9 +170,9 @@ dependencies = [
 
 [[package]]
 name = "fof"
-version = "0.1.10"
+version = "0.1.11"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "b3952f441a8f953408bf3015a2a755941c2fba25e2d72ea159dfd35ff0813003"
+checksum = "28bf645f4dd05436be275cb3cddd5369188bbad618919848f3800f915adb04ae"
 dependencies = [
  "csv",
  "integrate",

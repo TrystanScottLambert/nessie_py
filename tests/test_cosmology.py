@@ -100,7 +100,7 @@ class TestVirialSigma(unittest.TestCase):
 
 class TestHgrow(unittest.TestCase):
     """
-    Testing the h0_grow function at
+    Testing the h0_grow function at z
     """
 
     cosmo = FlatCosmology(0.7, 0.3)
@@ -108,13 +108,29 @@ class TestHgrow(unittest.TestCase):
 
     def test_against_astropy(self):
         """
-        Tesing the H(z) function against astropy.
+        Testing the H(z) function against astropy.
         """
         redshifts = np.arange(0, 10, 0.1)
         answers = self.astropy_cosmo.H(redshifts).value
         results = self.cosmo.h0_grow(redshifts)
         npt.assert_almost_equal(results, answers, decimal=2)
 
+class TestDifferentialComovingVolume(unittest.TestCase):
+    """
+    Testing that the differential comoving volume does the same thing as astropy. 
+    """
+    cosmo = FlatCosmology(0.7, 0.3)
+    astropy_cosmo = FlatLambdaCDM(H0=70, Om0=0.3)
+
+    def test_against_astropy(self):
+        """
+        Testing the differential comoving volume matches astropy.
+        """
+        redshifts = np.arange(0, 10, 0.1)
+        answers = self.astropy_cosmo.differential_comoving_volume(redshifts).value
+        results = self.cosmo.differential_covol(redshifts)
+        for r, a in zip(results, answers):
+            self.assertAlmostEqual(r, a, delta=0.1e8)
 
 if __name__ == "__main__":
     unittest.main()
