@@ -170,6 +170,23 @@ fn distance_modulus(
     Ok(result)
 }
 
+/// differential_comoving_volume
+#[pyfunction]
+fn diff_covol(redshift_array: Vec<f64>, omega_m: f64, omega_k: f64, omega_l: f64, h0: f64) -> PyResult<Vec<f64>> {
+    let cosmo = Cosmology {
+        omega_m,
+        omega_k,
+        omega_l,
+        h0,
+    };
+    let result = redshift_array
+        .par_iter()
+        .map(|&z| cosmo.differential_comoving_distance(z))
+        .collect();
+
+    Ok(result)
+}
+
 /// Link finding
 #[pyfunction]
 fn fof_links_fast<'py>(
@@ -352,6 +369,7 @@ fn nessie_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(create_pair_catalog, m)?)?;
     m.add_function(wrap_pyfunction!(calc_completeness_rust, m)?)?;
     m.add_function(wrap_pyfunction!(gen_randoms, m)?)?;
+    m.add_function(wrap_pyfunction!(diff_covol, m)?)?;
 
     Ok(())
 }
