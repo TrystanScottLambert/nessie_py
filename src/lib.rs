@@ -172,7 +172,13 @@ fn distance_modulus(
 
 /// differential_comoving_volume
 #[pyfunction]
-fn diff_covol(redshift_array: Vec<f64>, omega_m: f64, omega_k: f64, omega_l: f64, h0: f64) -> PyResult<Vec<f64>> {
+fn diff_covol(
+    redshift_array: Vec<f64>,
+    omega_m: f64,
+    omega_k: f64,
+    omega_l: f64,
+    h0: f64,
+) -> PyResult<Vec<f64>> {
     let cosmo = Cosmology {
         omega_m,
         omega_k,
