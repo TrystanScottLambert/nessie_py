@@ -1,11 +1,12 @@
 use fof::bijectivity::s_score;
-use fof::group_properties::GroupedGalaxyCatalog;
 use fof::completeness::{calculate_completeness, PositionCatalog};
+use fof::group_properties::GroupedGalaxyCatalog;
 use fof::link_finder::find_links;
 use fof::stats::harmonic_mean;
 use fof::Cosmology;
 use pyo3::prelude::*;
 use pyo3::types::PyDict;
+use randoms::generate_randoms;
 use rayon::prelude::*;
 
 /// Calculate the hubble constant at different redshifts.
@@ -74,6 +75,31 @@ fn z_at_comoving_distances(
     Ok(result)
 }
 
+/// Wrapper for the gen random function in randoms crate.
+#[pyfunction]
+fn gen_randoms(
+    redshifts: Vec<f64>,
+    mags: Vec<f64>,
+    z_lim: f64,
+    maglim: f64,
+    n_clone: i32,
+    iterations: i32,
+    omega_m: f64,
+    omega_k: f64,
+    omega_l: f64,
+    h0: f64,
+) -> PyResult<Vec<f64>> {
+    let cosmo = randoms::cosmology::Cosmology {
+        omega_m,
+        omega_k,
+        omega_l,
+        h0,
+    };
+    Ok(generate_randoms(
+        redshifts, mags, z_lim, maglim, n_clone, iterations, cosmo,
+    ))
+}
+
 /// Calculate the Rvir from a given mass for a range of redshift values.
 #[pyfunction]
 fn calculate_max_rvirs(
@@ -139,6 +165,29 @@ fn distance_modulus(
     let result = redshift_array
         .par_iter()
         .map(|&z| cosmo.distance_modulus(z))
+        .collect();
+
+    Ok(result)
+}
+
+/// differential_comoving_volume
+#[pyfunction]
+fn diff_covol(
+    redshift_array: Vec<f64>,
+    omega_m: f64,
+    omega_k: f64,
+    omega_l: f64,
+    h0: f64,
+) -> PyResult<Vec<f64>> {
+    let cosmo = Cosmology {
+        omega_m,
+        omega_k,
+        omega_l,
+        h0,
+    };
+    let result = redshift_array
+        .par_iter()
+        .map(|&z| cosmo.differential_comoving_distance(z))
         .collect();
 
     Ok(result)
@@ -325,6 +374,8 @@ fn nessie_py(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(calculate_harmonic_mean, m)?)?;
     m.add_function(wrap_pyfunction!(create_pair_catalog, m)?)?;
     m.add_function(wrap_pyfunction!(calc_completeness_rust, m)?)?;
+    m.add_function(wrap_pyfunction!(gen_randoms, m)?)?;
+    m.add_function(wrap_pyfunction!(diff_covol, m)?)?;
 
     Ok(())
 }

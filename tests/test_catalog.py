@@ -28,7 +28,9 @@ class TestRedshiftCatalog(unittest.TestCase):
         cosmo = FlatCosmology(0.7, 0.3)
         completeness = np.repeat(0.98, len(ra_array))
         density_function = lambda z: np.repeat(0.2, len(z))
-        cat = RedshiftCatalog(ra_array, dec_array, redshift_array, density_function, cosmo)
+        cat = RedshiftCatalog(
+            ra_array, dec_array, redshift_array, density_function, cosmo
+        )
         cat.set_completeness(completeness)
 
         group = cat.get_raw_groups(0.06, 18)
@@ -56,15 +58,15 @@ class TestRedshiftCatalog(unittest.TestCase):
         )
         cat.set_completeness()
         np.testing.assert_array_equal(cat.completeness, np.ones(len(ra_array)))
-    
+
     def test_completeness_can_be_calculated(self):
         """
         Checking that we can calculate the completeness from a target catalog.
         """
         ra_array = np.array([120.0, 120.0])
         dec_array = np.array([-34.0, -34.0])
-        target_ra = np.array([120., 120., 300.])
-        target_dec = np.array([-34., -34., -34.])
+        target_ra = np.array([120.0, 120.0, 300.0])
+        target_dec = np.array([-34.0, -34.0, -34.0])
         redshift_array = np.array([0.2, 0.2])
         cosmo = FlatCosmology(0.7, 0.3)
         density_function = lambda z: np.repeat(0.2, len(z))

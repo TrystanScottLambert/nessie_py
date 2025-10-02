@@ -83,7 +83,10 @@ class TestValidateFunction(unittest.TestCase):
             warnings.simplefilter("always")
             validate(np.array([-3.0]), ValidationType.ABS_MAG)
             self.assertTrue(
-                any("absolute magnitudes look unusual" in str(warn.message) for warn in w)
+                any(
+                    "absolute magnitudes look unusual" in str(warn.message)
+                    for warn in w
+                )
             )
 
     def test_abs_mag_too_bright_warns(self):
@@ -92,7 +95,10 @@ class TestValidateFunction(unittest.TestCase):
             warnings.simplefilter("always")
             validate(np.array([-51.0]), ValidationType.ABS_MAG)
             self.assertTrue(
-                any("absolute magnitudes look unusual" in str(warn.message) for warn in w)
+                any(
+                    "absolute magnitudes look unusual" in str(warn.message)
+                    for warn in w
+                )
             )
 
     # --- Completeness ---
@@ -121,7 +127,7 @@ class TestValidateFunction(unittest.TestCase):
     def test_vel_errors_valid(self):
         """Check that the velocity errors above zero pass without error."""
         try:
-            validate(np.array([50., 50.]), ValidationType.VEL_ERR)
+            validate(np.array([50.0, 50.0]), ValidationType.VEL_ERR)
         except Exception as e:
             self.fail(f"Velocity Errors failed unexpectedly: {e}")
 
@@ -131,7 +137,11 @@ class TestValidateFunction(unittest.TestCase):
             warnings.simplefilter("always")
             validate(np.array([2001]), ValidationType.VEL_ERR)
             self.assertTrue(
-                any("Warning: velocity errors seem very large. Are units correct?" in str(warn.message) for warn in w)
+                any(
+                    "Warning: velocity errors seem very large. Are units correct?"
+                    in str(warn.message)
+                    for warn in w
+                )
             )
 
     def test_vel_errors_below_zero_raises(self):

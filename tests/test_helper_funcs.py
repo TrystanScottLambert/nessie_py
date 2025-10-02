@@ -6,7 +6,12 @@ import unittest
 import numpy as np
 import numpy.testing as npt
 
-from nessie.helper_funcs import create_density_function, calculate_s_total
+from nessie.helper_funcs import (
+    create_density_function,
+    calculate_s_total,
+    remap_ids,
+    gen_random_redshifts,
+)
 from nessie.cosmology import FlatCosmology
 
 
@@ -52,6 +57,59 @@ class TestCalculateSTotal(unittest.TestCase):
         mock_ids = np.array([0, 0, 0, -1, -1])
         result = calculate_s_total(measured_ids, mock_ids)
         self.assertEqual(result, 0.4)
+
+
+class TestRemapId(unittest.TestCase):
+    """Testing the remap_id function"""
+
+    def test_string(self):
+        """Testing that strings are remaped correctly."""
+        bad = ["2mass1", "2mass2", -1, "2mass1", "2mass3"]
+        good = [1, 2, -1, 1, 3]
+        ans = remap_ids(bad)
+        for r, a in zip(ans, good):
+            self.assertEqual(r, a)
+
+    def test_float(self):
+        """Testing that floats work."""
+        bad = [1.1, 2.2, -1, 1.1, 3.3]
+        good = [1, 2, -1, 1, 3]
+        ans = remap_ids(bad)
+        for r, a in zip(ans, good):
+            self.assertEqual(r, a)
+
+    def test_long_int(self):
+        """Testing that long ints work."""
+        bad = [10**18, 10**18 + 1, -1, 10**18, 10**18 + 2]
+        good = [1, 2, -1, 1, 3]
+        ans = remap_ids(bad)
+        for r, a in zip(ans, good):
+            self.assertEqual(r, a)
+
+    def test_shark(self):
+        """Testing that works with shark ids."""
+        shark_ids = [21826700000225, 21826700000235, -1, 21826700000225, 21826700000525]
+        good = [1, 2, -1, 1, 3]
+        ans = remap_ids(shark_ids)
+        for r, a in zip(ans, good):
+            self.assertEqual(r, a)
+
+
+class TestGenRandoms(unittest.TestCase):
+    """
+    Testing that the gen_random_redshifts function.
+    """
+
+    def test(self):
+        """testing basic run since this is a simple wrapper."""
+        cosmo = FlatCosmology(1.0, 0.3)
+        redshifts = np.random.normal(0.6, 0.3, 500)
+        redshifts = redshifts[redshifts > 0]
+        mags = np.random.random(len(redshifts)) * 4 + 15
+        z_lim = np.max(redshifts) + 0.1
+        maglim = 19.0
+        zs = gen_random_redshifts(redshifts, mags, z_lim, maglim, cosmo, iterations=2, n_clone=100)
+        self.assertEqual(round(len(zs) / (100*500)), 1)
 
 
 if __name__ == "__main__":

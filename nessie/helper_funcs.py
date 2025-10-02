@@ -4,6 +4,7 @@ Module for quality of life helper functions which are not core to the algorithm.
 
 import warnings
 from enum import Enum
+from typing import Union
 
 import numpy as np
 from scipy.integrate import quad
@@ -11,8 +12,36 @@ from scipy.interpolate import interp1d
 from statsmodels.nonparametric.kde import KDEUnivariate
 
 
-from nessie_py import calculate_s_score
+from nessie_py import calculate_s_score, gen_randoms
 from .cosmology import FlatCosmology
+
+
+def gen_random_redshifts(
+    redshifts: np.ndarray[float],
+    mags: np.ndarray[float],
+    z_lim: float,
+    maglim: float,
+    cosmo: FlatCosmology,
+    n_clone: int = 400,
+    iterations: int = 10,
+) -> np.ndarray[float]:
+    """
+    Automatically models the n(z) using a randoms catalogue. This can be used to gen the density
+    function.
+    """
+
+    return gen_randoms(
+        redshifts,
+        mags,
+        z_lim,
+        maglim,
+        n_clone,
+        iterations,
+        cosmo.omega_m,
+        cosmo.omega_k,
+        cosmo.omega_lambda,
+        cosmo.hubble_constant,
+    )
 
 
 def create_density_function(
@@ -179,3 +208,15 @@ def validate(value: np.ndarray[float] | float, valid_type: ValidationType) -> No
             raise ValueError(
                 f"Unknown property type: {valid_type.value}. Likely Enum needs updating."
             )
+
+
+def remap_ids(id_array: np.ndarray[Union[int, str, float]]) -> np.ndarray[int]:
+    """
+    Renames the ids which could be in string, float, or long int into a safe int32 format.
+    """
+    unique_vals = np.unique(id_array)
+    unique_vals = unique_vals[unique_vals != -1]
+    unique_vals = unique_vals[unique_vals != "-1"]  # for string cases
+    mapping = {val: i + 1 for i, val in enumerate(unique_vals)}  # plus to remove 0
+    mapping[-1] = -1
+    return np.vectorize(mapping.get)(id_array)

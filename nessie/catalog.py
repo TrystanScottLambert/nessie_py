@@ -3,12 +3,13 @@ The Core redshift survey class which handles most the linking assignments and gr
 """
 
 from typing import Callable
+import warnings
 import numpy as np
 
 from nessie_py import create_group_catalog, create_pair_catalog, calc_completeness_rust
 from .cosmology import FlatCosmology
 from .core_funcs import _find_groups
-from .helper_funcs import calculate_s_total, validate, ValidationType
+from .helper_funcs import calculate_s_total, validate, ValidationType, remap_ids
 
 
 class RedshiftCatalog:
@@ -236,10 +237,14 @@ class RedshiftCatalog:
             raise InterruptedError(
                 "No mock group ids found. Be sure to set the mock groups ids."
             )
+        elif -1 not in self.mock_group_ids:
+            warnings.warn("No mock-groups found with -1 id. Are these set properly?")
 
         if self.completeness is None:
             raise ValueError(
                 "No completeness array found. Run 'set_completeness' or 'calculate_completeness'."
             )
 
-        return calculate_s_total(self.group_ids, self.mock_group_ids, min_group_size)
+        safe_mock_ids = remap_ids(self.mock_group_ids)
+
+        return calculate_s_total(self.group_ids, safe_mock_ids, min_group_size)
