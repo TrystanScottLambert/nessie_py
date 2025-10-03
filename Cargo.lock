@@ -1475,7 +1475,7 @@ dependencies = [
 
 [[package]]
 name = "nessie_py"
-version = "1.0.4"
+version = "1.0.5"
 dependencies = [
  "fof",
  "pyo3",
