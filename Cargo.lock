@@ -2504,9 +2504,9 @@ dependencies = [
 
 [[package]]
 name = "randoms"
-version = "0.2.0"
+version = "0.2.1"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "0782b41fe0feebd97eb36339f32648a596a812c2697b6235b1ef717a156684fb"
+checksum = "873c4ef6996cee409f750d147fbb0fe30100b27cebbe4d0bb05d29a9bcdef0f8"
 dependencies = [
  "csv",
  "integrate",
