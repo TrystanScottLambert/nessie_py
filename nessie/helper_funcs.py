@@ -8,9 +8,9 @@ from typing import Union
 
 import numpy as np
 from scipy.integrate import quad
+from scipy.optimize import curve_fit
 from scipy.interpolate import interp1d
 from statsmodels.nonparametric.kde import KDEUnivariate
-
 
 from nessie_py import calculate_s_score, gen_randoms
 from .cosmology import FlatCosmology
@@ -104,6 +104,54 @@ def create_density_function(
     rho_z_func = interp1d(
         z_vals, rho_vals, bounds_error=False, fill_value="extrapolate"
     )
+
+    return rho_z_func
+
+
+def create_density_function_be93(
+    redshifts: np.ndarray, 
+    survey_fractional_area: float, 
+    cosmology: FlatCosmology, 
+    z_binwidth: float = 0.002, 
+):
+    """
+    Running density function estimation (rho(z)) using a generalized form of the Baugh & Efstathiou 1993 methodology
+
+    Parameters
+    ----------
+    redshifts : array_like
+        Redshift values used to estimate the redshift distribution.
+    survey_fractional_area : float
+        Fraction of the sky covered by the survey (relative to 4π steradians).
+    cosmology : CustomCosmology
+        A cosmology object with methods:
+            - differential_covol(z)
+    z_binwidth : float
+        Redshift bin width (default = 0.002).
+
+    Returns
+    -------
+    rho_z_func : callable
+        A function rho(z) that gives the running density at a given redshift.
+    """
+    nz = round((max(redshifts) - min(redshifts)) / z_binwidth)
+    zrange = (min(redshifts), max(redshifts))
+    counts, bin_edges = np.histogram(redshifts, bins=nz, range=zrange)
+    z_centers = 0.5 * (bin_edges[:-1] + bin_edges[1:])
+    dz = bin_edges[1] - bin_edges[0]
+    counts_per_dz = counts.astype(float) / dz
+
+    def _dN(z, A_m, z_c, alpha, beta):
+        return A_m * z**alpha * np.exp(-(z / z_c)**(beta))
+
+    popt, _ = curve_fit(_dN, z_centers, counts_per_dz, p0=(counts_per_dz.max(), np.median(redshifts), 2, 1.5), bounds=(0, np.inf))
+    z_grid = np.linspace(zrange[0], zrange[1], nz+1)
+    dn_dz = _dN(z_grid, *popt)
+
+    dv_dz = cosmology.differential_covol(z_grid) * (survey_fractional_area / (4*np.pi))
+
+    rho_z = dn_dz / dv_dz
+    rho_z_func = interp1d(z_grid, rho_z, bounds_error=False, fill_value="extrapolate")
 
     return rho_z_func
 
