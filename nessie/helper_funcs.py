@@ -148,7 +148,7 @@ def create_density_function_be93(
     z_grid = np.linspace(zrange[0], zrange[1], nz+1)
     dn_dz = _dN(z_grid, *popt)
 
-    dv_dz = cosmology.differential_covol(z_grid) * (survey_fractional_area / (4*np.pi))
+    dv_dz = cosmology.differential_covol(z_grid) * (survey_fractional_area * (4*np.pi))
 
     rho_z = dn_dz / dv_dz
     rho_z_func = interp1d(z_grid, rho_z, bounds_error=False, fill_value="extrapolate")
