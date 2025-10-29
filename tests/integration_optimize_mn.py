@@ -9,16 +9,29 @@ import numpy as np
 from nessie.catalog import RedshiftCatalog
 from nessie.cosmology import FlatCosmology
 from nessie.optimizer import optimize_nm
-from nessie.helper_funcs import create_density_function
+from nessie.helper_funcs import create_density_function, gen_random_redshifts
 
 
 INFILE_SDSS = "/Users/00115372/Desktop/nessie_plots/asu.tsv"
 SDSS_AREA = 0.212673
+SDSS_MAGLIM = 17.77
 group_id, n_gal, z, ra, dec, mag = np.loadtxt(INFILE_SDSS, unpack=True, skiprows=1)
+print(max(mag))
+cut = np.where((mag < SDSS_MAGLIM) & (z > 0.01) & (z < 2))[0]
+group_id, n_gal, z, ra, dec, mag = (
+    group_id[cut],
+    n_gal[cut],
+    z[cut],
+    ra[cut],
+    dec[cut],
+    mag[cut],
+)
+
 group_id[group_id == 0] = -1
 
 cosmo = FlatCosmology(0.7, 0.3)
 
+randoms = gen_random_redshifts(z, mag, 0.2, SDSS_MAGLIM, cosmo, n_clone=100)
 func = create_density_function(z, len(z), SDSS_AREA, cosmo)
 
 red_cat = RedshiftCatalog(ra, dec, z, func, cosmo)
@@ -30,3 +43,4 @@ start = datetime.now()
 b0, r0 = optimize_nm(red_cat, 5)
 end = datetime.now()
 print("Time taken to optimize is: ", end - start)
+print(f"Best values are: {b0} {r0}")
