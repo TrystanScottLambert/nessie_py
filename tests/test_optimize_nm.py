@@ -33,7 +33,7 @@ class TestOptimizer(unittest.TestCase):
         )
         group_id, n_gal, z, ra, dec, mag = group_id[mask], n_gal[mask], z[mask], ra[mask], dec[mask], mag[mask]
 
-        CAT_AREA = 400 * (np.pi / 180) ** 2 / (4 * np.pi)
+        CAT_AREA = np.deg2rad(max(ra) - min(ra)) * (np.sin(np.deg2rad(max(dec))) - np.sin(np.deg2rad(min(dec)))) / (4*np.pi)
         cosmo = FlatCosmology(0.7, 0.3)
         func = create_density_function(z, len(z), CAT_AREA, cosmo)
 
