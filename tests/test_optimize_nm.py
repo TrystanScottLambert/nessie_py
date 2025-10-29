@@ -41,8 +41,8 @@ class TestOptimizer(unittest.TestCase):
         red_cat.set_completeness()
         red_cat.mock_group_ids = group_id
 
-        b0, r0 = optimize_nm(red_cat, 5)
-        b0_multi, r0_multi = optimize_nm([red_cat, red_cat], 5)
+        b0, r0, score = optimize_nm(red_cat, 5)
+        b0_multi, r0_multi, score = optimize_nm([red_cat, red_cat], 5)
 
         self.assertGreaterEqual(min((b0, b0_multi)) / max((b0, b0_multi)), 0.99)
         self.assertGreaterEqual(min((r0, r0_multi)) / max((r0, r0_multi)), 0.99)

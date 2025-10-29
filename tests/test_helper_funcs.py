@@ -110,7 +110,6 @@ class TestGenRandoms(unittest.TestCase):
         mags = np.random.random(len(redshifts)) * 4 + 15
         z_lim = np.max(redshifts) + 0.1
         maglim = 19.0
-        print("Doing this thing")
         now = datetime.datetime.now()
         zs = gen_random_redshifts(redshifts, mags, z_lim, maglim, cosmo, iterations=2, n_clone=100)
         later = datetime.datetime.now()
