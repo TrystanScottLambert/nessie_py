@@ -272,6 +272,7 @@ fn create_group_catalog<'py>(
     )?;
     dict.set_item("mass_proxy", group_catalog.raw_masses)?;
     dict.set_item("estimated_mass", group_catalog.estimated_masses)?;
+    dict.set_item("vd_corrected_mass", group_catalog.vd_corrected_masses)?;
     dict.set_item("bcg_idxs", group_catalog.bcg_idxs)?;
     dict.set_item("bcg_ras", group_catalog.bcg_ras)?;
     dict.set_item("bcg_decs", group_catalog.bcg_decs)?;
