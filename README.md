@@ -168,12 +168,6 @@ Besides a Group catalog, a Pair catalog consisting of properties of galaxy-pairs
 pair_catalog_dict = red_cat.calculate_pair_table()
 ```
 
-## Tuning Against a Mock Catalog
-The above example is easy to do if you already know what the linking lengths are, but often the choice of `b0` and `r0` is not clear. A standard practice to overcome this issue is to rely on mock catalogs of known groupings to "tune" the best values. I.e., find the values of `b0` and `r0` that best recover what is known in the mock catalogs.
-
-Obtaining such mock catalogs is beyond the scope of this package. We assume that the user has obtained some in one manner or another or built their own.
-
-Currently, tuning can only be done in the Nessie R package. But we plan on including it here soon. But we do include functionality for comparing to mock catalogs which can be optimized by the user in any way they wish.
 
 ### Comparing to Mocks
 If known "true" groups are known then they can be set in the RedshiftCatalog object. Then the cost function described in section 3.1 of Robotham+2011 can be calculated trivially. 
@@ -190,6 +184,18 @@ The minimum number of members in a group can be set for the score too.
 
 This can then be optimized as the user sees fit.
 
+## Tuning Against a Mock Catalog
+The above example is easy to do if you already know what the linking lengths are, but often the choice of `b0` and `r0` is not clear. A standard practice to overcome this issue is to rely on mock catalogs of known groupings to "tune" the best values. I.e., find the values of `b0` and `r0` that best recover what is known in the mock catalogs.
+
+Obtaining such mock catalogs is beyond the scope of this package. We assume that the user has obtained some in one manner or another or built their own.
+
+`Nessie` has a simple nelder-mead optimizer which can be used via the `optimize_nm` function.
+```python
+from nessie.optimizer import optimize_nm
+
+red_cat.mock_group_ids = mock_group_ids
+b0, r0, score = optimize_nm(red_cat, min_group_size=5)
+```
 
 ## Contributing
 
