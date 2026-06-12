@@ -13,19 +13,6 @@ This package aims to be as user-friendly as possible and requires minimal inform
 
 Since this is the Python version of this tool, we assume that the user already has Python installed. You can install the newest version [here](https://www.python.org/downloads/) and a good guide from [real python](https://realpython.com/installing-python/).
 
-### Installing Rust
-
-Since the core functionality of Nessie is written in Rust, the Rust package manager—Cargo—is required. Fortunately, **this is very easy to install.** The [rustlang site](https://www.rust-lang.org/tools/install) should detect your operating system and tell you what command to use to install Rust using `rustup`. This should automatically install `Cargo` as well.
-
-For Unix systems (macOS + Linux), this is as easy as running:
-
-```bash
-curl --proto '=https' --tlsv1.2 -sSf https://sh.rustup.rs | sh
-
-```
-
-in the terminal.
-
 ### Installing Nessie
 
 Nessie can be easily installed using pip. 
