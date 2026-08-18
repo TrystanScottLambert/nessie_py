@@ -26,3 +26,8 @@ dependencies = [
 [tool.maturin]
 features = ["pyo3/extension-module"]
 include = ["nessie/*.py"]
+
+[dependency-groups]
+dev = [
+    "maturin>=1.14.1",
+]
