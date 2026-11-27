@@ -124,7 +124,7 @@ class RedshiftCatalog:
         too_wide = np.where(gal_rad > max_on_sky_radius)[0]
 
         gal_rad[too_wide] = max_on_sky_radius[too_wide]
-        linking_lengths_pos = gal_rad / (self.cosmology.h * co_dists)
+        linking_lengths_pos = gal_rad / co_dists
 
         r_variable = (
             r0
@@ -136,7 +136,7 @@ class RedshiftCatalog:
                 )
             )
         )
-        linking_lengths_los = (gal_rad * r_variable) / self.cosmology.h
+        linking_lengths_los = gal_rad * r_variable
         max_los_distances = (
             self.cosmology.velocity_dispersion(max_stellar_mass, self.redshift_array)
             * (1 + self.redshift_array)
